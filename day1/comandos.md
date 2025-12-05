@@ -5,6 +5,51 @@
 kind create cluster --config kind-config.yaml
 ```
 
+## Instalar Metrics Server
+
+### 1. Baixar o manifesto
+```bash
+# Linux/WSL
+wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# PowerShell/Windows
+Invoke-WebRequest -Uri https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml -OutFile components.yaml
+```
+
+### 2. Editar o arquivo components.yaml
+Adicionar `--kubelet-insecure-tls` na seção de args do container:
+
+```yaml
+spec:
+  containers:
+  - args:
+    - --cert-dir=/tmp
+    - --secure-port=4443
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --kubelet-use-node-status-port
+    - --kubelet-insecure-tls      # <==== Adicionar esta linha
+    - --metric-resolution=15s
+    image: registry.k8s.io/metrics-server/metrics-server:v0.7.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /livez
+        port: https
+        scheme: HTTPS
+```
+
+### 3. Aplicar o manifesto
+```bash
+kubectl apply -f components.yaml
+```
+
+### 4. Verificar instalação
+```bash
+kubectl get deployment metrics-server -n kube-system
+kubectl top nodes
+```
+
 ## ⚙️ Configuração do PowerShell Completion
 ```powershell
 # Verificar opções de completion
