@@ -4,7 +4,7 @@ nodes:
   - role: control-plane
   - role: worker
     extraPortMappings:
-      - containerPort: 30000
-        hostPort: 30000
+      - containerPort: 8080
+        hostPort: 8080
         listenAddress: "0.0.0.0" # Opcional, padrão é "0.0.0.0"
         protocol: tcp # Opcional, padrão é tcp
